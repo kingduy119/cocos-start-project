@@ -65,12 +65,12 @@ export default class NewClass extends cc.Component {
 
     // LIFE-CYCLE CALLBACKS:
     onLoad () {
-        io.getSocket().on("connected", (id: any) => { 
-            global.player = {...global.player, id };
-        })
-        io.getSocket().on("lobby-user", (total: number) => {
-            this.gameLobby.getComponent("users_label").string = `Users in game: ${total}`;
-        })
+        // io.getSocket().on("connected", (id: any) => { 
+        //     global.player = {...global.player, id };
+        // })
+        // io.getSocket().on("lobby-user", (total: number) => {
+        //     this.gameLobby.getComponent("users_label").string = `Users in game: ${total}`;
+        // })
     }
 
     start () {

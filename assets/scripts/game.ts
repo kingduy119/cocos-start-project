@@ -45,7 +45,6 @@ export default class NewClass extends cc.Component {
         newEnemy.getComponent('enemy').game = this;
         newEnemy.getComponent('enemy').setData(data);
     }
-
     gainScore (id: number) {
         this.player.getComponent('player').score += 1;
         let user = pick(this.player.getComponent('player'), ['id', 'score']);
@@ -70,6 +69,8 @@ export default class NewClass extends cc.Component {
 
     // LIFE-CYCLE CALLBACKS:
     onLoad () {
+        this.player.getComponent('player').game = this;
+
         socket.getSocket().on('game-load', (data: any) => {
             this.setData(data);
             this.users.map((user: any) => { 
@@ -96,10 +97,10 @@ export default class NewClass extends cc.Component {
     }
 
     start () {
-        socket.getSocket().emit("user-join", this.player.getComponent('player').getData());
+        // socket.getSocket().emit("user-join", this.player.getComponent('player').getData());
     }
 
     update (dt: any) {
-        socket.getSocket().emit("game-update", this.getData());
+        // socket.getSocket().emit("game-update", this.getData());
     }
 }

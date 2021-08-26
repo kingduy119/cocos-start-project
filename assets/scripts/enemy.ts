@@ -6,7 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import * as socket from "./socket";
-import { get, pick } from "lodash";
+import { get, pick, isEmpty } from "lodash";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -37,19 +37,10 @@ export default class NewClass extends cc.Component {
     xSpeed: number = 0;
     ySpeed: number = 0;
 
-    updateDataServer() {
-        let data = this.game.getUser(this.getData());
-        this.setData(data);
-    }
-
     getData () {
         return Object.assign({},
             pick(this, ['id', 'accLeft', 'accRight', 'accUp', 'accDown', 'accel', 'score', 'username']),
-            pick(this.node, ['x, y']),
-            // {
-            //     x: this.node.x,
-            //     y: this.node.y,
-            // }
+            // pick(this.node, ['x, y']),
         );
     }
     setData (data: any) {
@@ -111,6 +102,10 @@ export default class NewClass extends cc.Component {
 
     // LIFE-CYCLE CALLBACKS:
     onLoad () {
+        socket.getSocket().on('game-update', (data: any[]) => {
+            let users = get(data, 'users', []);
+            if(!isEmpty[users[this.id]]) this.setData(users[this.id]);
+        });
     }
     start () {
         console.log(`USER-start-${this.id}`);
@@ -120,7 +115,6 @@ export default class NewClass extends cc.Component {
     }
     update (dt: any) {
         this.usernameDisplay.string = `${this.username}: ${this.score}`;
-        this.updateDataServer();
         this.onUpdateMovement(dt);
     }
 
