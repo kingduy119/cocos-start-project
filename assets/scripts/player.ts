@@ -190,24 +190,22 @@ export default class NewClass extends cc.Component {
         // this.setData(data);
         if(!isEmpty(this.target)) {
             let x = interpolation(this.node.x, dt, this.target.x, this.target.xSpeed);
-            if(!isNaN(x)) this.node.x = x;
+            if(!isNaN(x)) this.node.x += x;
 
             let y = interpolation(this.node.y, dt, this.target.y, this.target.ySpeed);
-            if(!isNaN(y)) this.node.y = y;
+            if(!isNaN(y)) this.node.y += y;
         }
         
-
         socket.getSocket().emit("player-update", this.getData());
     }
 }
 
-function interpolation(start:number , dt:number, end:number, speed:number = 0) {
+function interpolation(start:number , delta:number, end:number, speed:number = 0) {
     let stance = end - start;
     let time = stance / speed;
 
-    let y = dt / (time - dt);
-    let x = y * stance / y + 1; // <=>  y = x / stance - x
-    console.log(`stance: ${stance} - time: ${time} - y: ${y} - x: ${start + x}`);
+    let y = delta / (time - delta);
+    let x = (y * stance) / (y + 1) ; // <=>  y = x / stance - x
 
-    return start + x * dt;
+    return x;
 }
