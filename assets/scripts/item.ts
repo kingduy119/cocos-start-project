@@ -7,13 +7,13 @@
 
 import { get, pick } from "lodash";
 import * as socket from "./socket";
+import global from "./global";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
 export default class NewClass extends cc.Component {
     @property
     pickRadius: number = 0;
-    visible: any;
     id: any;
     game: any;
 
@@ -21,14 +21,10 @@ export default class NewClass extends cc.Component {
         this.id = get(data, 'id', this.id);
         this.node.x = get(data, 'x', this.node.x);
         this.node.y = get(data, 'y', this.node.y);
-        this.visible = get(data, 'visible', this.visible);
     }
 
     getData() {
-        return Object.assign({}, 
-            pick(this, ['id', 'score']),
-            pick(this.node, ['x', 'y'])
-        );
+        return pick(this, ['id', 'score']);
     }
 
     setData(data: any) {
@@ -43,33 +39,32 @@ export default class NewClass extends cc.Component {
 
         // Calculate the distance between two nodes according to their positions
         var dist = this.node.position.sub(playerPos).mag();
+
         return dist;
     }
 
     // LIFE-CYCLE CALLBACKS:
-    onLoad () {}
-    start () {
-        socket.getSocket().on(`onDestroy-item-${this.id}`, () => {
-            this.node.destroy();
-        })
+    onLoad () {
+        
     }
-    onDestroy() {
-        socket.getSocket().off(`onDestroy-item-${this.id}`);
+
+    start () {
+        socket.getSocket().on(`destroy-item-${this.id}`, () => {
+            console.log(`destroy-item-${this.id}`)
+            this.node.destroy();
+        });
+    }
+
+    onDestroy () {
+        socket.getSocket().off(`destroy-item-${this.id}`);
     }
 
     update (dt: any) {
-        this.setData(this.game.items[this.id]);
         if (this.getPlayerDistance() < this.pickRadius) {
-            // this.node.active = false;
-            this.game.gainScore(this.id);
+            socket.getSocket().emit("item-collect", {item: this.getData(), user: global.player});
             this.node.destroy();
             return;
         }
-
-        // Update the transparency of the star according to the timer in the Game script
-        // var opacityRatio = 1 - this.game.timer/this.game.starDuration;
-        // var minOpacity = 50;
-        // this.node.opacity = minOpacity + Math.floor(opacityRatio * (255 - minOpacity));
     }
 
 }

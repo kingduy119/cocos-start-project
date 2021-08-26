@@ -40,9 +40,6 @@ export default class NewClass extends cc.Component {
 
     getData () {
         return pick(this, ['id', 'username', 'accLeft', 'accRight', 'accUp', 'accDown', 'score'])
-        // return Object.assign({},
-        //     pick(this, ['id', 'accLeft', 'accRight', 'accUp', 'accDown', 'accel', 'score', 'username']),
-        // );
     }
     setData (data: any) {
         this.id = get(data, 'id', this.id);
@@ -59,16 +56,12 @@ export default class NewClass extends cc.Component {
 
     // LIFE-CYCLE CALLBACKS:
     onLoad () {
-        // socket.getSocket().on('game-update', (data: any[]) => {
-        //     let users = get(data, 'users', []);
-        //     if(!isEmpty[users[this.id]]) this.setData(users[this.id]);
-        // });
 
         socket.getSocket().on('game-update', (data: any[]) => {
             let id = get(this, 'id');
             let users = get(data, 'users', []);
             this.target = users[id];
-            // this.setData(users[id]);
+            this.setData(pick(users[id], ["score"]));
         });
     }
 
@@ -96,11 +89,11 @@ export default class NewClass extends cc.Component {
 }
 
 function interpolation(start:number , delta:number, end:number, speed:number = 0) {
-    let stance = end - start;
-    let time = stance / speed;
+    let distance = end - start;
+    let time = distance / speed;
 
     let y = delta / (time - delta);
-    let x = (y * stance) / (y + 1) ; // <=>  y = x / (stance - x)
+    let x = (y * distance) / (y + 1) ; // <=>  y = x / (distance - x)
 
     return x;
 }
