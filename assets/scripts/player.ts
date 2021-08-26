@@ -107,48 +107,6 @@ export default class NewClass extends cc.Component {
         }
     }
 
-    // Update speed of each frame according to the current acceleration direction
-    updateMovement(dt: any) {
-        // if (this.accLeft) {
-        //     this.xSpeed -= this.accel * dt;
-        // } 
-        // else if(!this.accLeft && this.xSpeed < 0) {
-        //     this.xSpeed += this.accel * dt;
-        // }
-        // else if (this.accRight) {
-        //     this.xSpeed += this.accel * dt;
-        // }
-        // else if(!this.accRight && this.xSpeed > 0) {
-        //     this.xSpeed -= this.accel * dt;
-        // }
-
-        // if(this.accUp) {
-        //     this.ySpeed += this.accel * dt;
-        // }
-        // else if(!this.accUp && this.ySpeed > 0) {
-        //     this.ySpeed -= this.accel * dt;
-        // }
-        // else if(this.accDown) {
-        //     this.ySpeed -= this.accel * dt;
-        // }
-        // else if(!this.accDown && this.ySpeed < 0) {
-        //     this.ySpeed += this.accel * dt;
-        // }
-
-        // // Restrict the movement speed of the main character to the maximum movement speed
-        // // If speed reach limit, use max speed with current direction
-        // if ( Math.abs(this.xSpeed) > this.maxMoveSpeed ) {
-        //     this.xSpeed = this.maxMoveSpeed * this.xSpeed / Math.abs(this.xSpeed);
-        // }
-        // if ( Math.abs(this.ySpeed) > this.maxMoveSpeed ) {
-        //     this.ySpeed = this.maxMoveSpeed * this.ySpeed / Math.abs(this.ySpeed);
-        // }
-
-        // // Update the position of the main character according to the current speed
-        // this.node.x += this.xSpeed * dt;
-        // this.node.y += this.ySpeed * dt;
-    }
-
     // LIFE-CYCLE CALLBACKS:
     onLoad () {
         // this.id = get(global.player, "id", this.id);
@@ -173,21 +131,18 @@ export default class NewClass extends cc.Component {
         socket.getSocket().emit("player-request-init", pick(this, "username"));
     }
 
-    start() {}
-
     onDestroy () {
         // Cancel keyboard input monitoring
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     }
 
+    start() {}
+
     // start () {}
     update (dt: any) {
         this.usernameDisplay.string = `${this.username}: ${this.score}`;
         
-        // this.updateMovement(dt);
-        // let data = this.game.getUser(this.getData());
-        // this.setData(data);
         if(!isEmpty(this.target)) {
             let x = interpolation(this.node.x, dt, this.target.x, this.target.xSpeed);
             if(!isNaN(x)) this.node.x += x;
@@ -205,7 +160,7 @@ function interpolation(start:number , delta:number, end:number, speed:number = 0
     let time = stance / speed;
 
     let y = delta / (time - delta);
-    let x = (y * stance) / (y + 1) ; // <=>  y = x / stance - x
+    let x = (y * stance) / (y + 1) ; // <=>  y = x / (stance - x)
 
     return x;
 }

@@ -13,6 +13,9 @@ const {ccclass, property} = cc._decorator;
 export default class NewClass extends cc.Component {
     @property
     pickRadius: number = 0;
+    visible: any;
+    id: any;
+    game: any;
 
     init(data: any) {
         this.id = get(data, 'id', this.id);
@@ -32,7 +35,6 @@ export default class NewClass extends cc.Component {
         this.id = get(data, 'id', this.id);
         this.node.x=  get(data, 'x', this.node.x);
         this.node.y=  get(data, 'y', this.node.y);
-        this.score = get(data, 'score', this.score);
     }
 
     getPlayerDistance () {

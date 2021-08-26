@@ -71,7 +71,7 @@ export default class NewClass extends cc.Component {
     onLoad () {
         this.player.getComponent('player').game = this;
 
-        socket.getSocket().on('game-load', (data: any) => {
+        socket.getSocket().on('game-init', (data: any) => {
             this.setData(data);
             this.users.map((user: any) => { 
                 if(!isEmpty(user)) this.spawnUser(user);
@@ -81,23 +81,25 @@ export default class NewClass extends cc.Component {
              });
         })
 
-        socket.getSocket().on('game-update', (data: any[]) => {
-            this.setData(data);
-        });
+        // socket.getSocket().on('game-update', (data: any[]) => {
+        //     this.setData(data);
+        // });
+
         socket.getSocket().on('game-spawn-item', (data: any) => {
             this.spawnItem(data);
         })
+        socket.getSocket().on("game-spawn-user", (data: any) => {
+            console.log(JSON.stringify(data));
+            this.spawnUser(data);
+        })
 
-        socket.getSocket().on('user-join', (user: any) => {
-            this.spawnUser(user);
-        })
-        socket.getSocket().on('user-ping', () => {
-            socket.getSocket().emit("user-ping", global.player);
-        })
+        // socket.getSocket().on('user-ping', () => {
+        //     socket.getSocket().emit("user-ping", global.player);
+        // })
     }
 
     start () {
-        // socket.getSocket().emit("user-join", this.player.getComponent('player').getData());
+        // socket.getSocket().emit("player-join", this.player.getComponent('player').getData());
     }
 
     update (dt: any) {

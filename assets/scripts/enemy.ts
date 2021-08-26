@@ -36,12 +36,13 @@ export default class NewClass extends cc.Component {
     accDown: boolean = false;
     xSpeed: number = 0;
     ySpeed: number = 0;
+    target:any = [];
 
     getData () {
-        return Object.assign({},
-            pick(this, ['id', 'accLeft', 'accRight', 'accUp', 'accDown', 'accel', 'score', 'username']),
-            // pick(this.node, ['x, y']),
-        );
+        return pick(this, ['id', 'username', 'accLeft', 'accRight', 'accUp', 'accDown', 'score'])
+        // return Object.assign({},
+        //     pick(this, ['id', 'accLeft', 'accRight', 'accUp', 'accDown', 'accel', 'score', 'username']),
+        // );
     }
     setData (data: any) {
         this.id = get(data, 'id', this.id);
@@ -49,76 +50,57 @@ export default class NewClass extends cc.Component {
         this.username = get(data, 'username', this.username);
         this.node.x = get(data, 'x', this.node.x);
         this.node.y = get(data, 'y', this.node.y);
-        this.accLeft = get(data, 'accLeft', this.accLeft);
-        this.accRight = get(data, 'accRight', this.accRight);
-        this.accUp = get(data, 'accUp', this.accUp);
-        this.accDown = get(data, 'accDown', this.accDown);
-        this.accel = get(data, 'accel', this.accel);
-    }
-
-    // Update speed of each frame according to the current acceleration direction
-    onUpdateMovement(dt: any) {
-        // Move X
-        if (this.accLeft) {
-            this.xSpeed -= this.accel * dt;
-        } 
-        else if(!this.accLeft && this.xSpeed < 0) {
-            this.xSpeed += this.accel * dt;
-        }
-        else if (this.accRight) {
-            this.xSpeed += this.accel * dt;
-        }
-        else if(!this.accRight && this.xSpeed > 0) {
-            this.xSpeed -= this.accel * dt;
-        }
-
-        // Move Y
-        if(this.accUp) {
-            this.ySpeed += this.accel * dt;
-        }
-        else if(!this.accUp && this.ySpeed > 0) {
-            this.ySpeed -= this.accel * dt;
-        }
-        else if(this.accDown) {
-            this.ySpeed -= this.accel * dt;
-        }
-        else if(!this.accDown && this.ySpeed < 0) {
-            this.ySpeed += this.accel * dt;
-        }
-
-        // Restrict the movement speed of the main character to the maximum movement speed
-        // If speed reach limit, use max speed with current direction
-        if ( Math.abs(this.xSpeed) > this.maxMoveSpeed ) {
-            this.xSpeed = this.maxMoveSpeed * this.xSpeed / Math.abs(this.xSpeed);
-        }
-        if ( Math.abs(this.ySpeed) > this.maxMoveSpeed ) {
-            this.ySpeed = this.maxMoveSpeed * this.ySpeed / Math.abs(this.ySpeed);
-        }
-
-        // Update the position of the main character according to the current speed
-        this.node.x += this.xSpeed * dt;
-        this.node.y += this.ySpeed * dt;
+        // this.accLeft = get(data, 'accLeft', this.accLeft);
+        // this.accRight = get(data, 'accRight', this.accRight);
+        // this.accUp = get(data, 'accUp', this.accUp);
+        // this.accDown = get(data, 'accDown', this.accDown);
+        // this.accel = get(data, 'accel', this.accel);
     }
 
     // LIFE-CYCLE CALLBACKS:
     onLoad () {
+        // socket.getSocket().on('game-update', (data: any[]) => {
+        //     let users = get(data, 'users', []);
+        //     if(!isEmpty[users[this.id]]) this.setData(users[this.id]);
+        // });
+
         socket.getSocket().on('game-update', (data: any[]) => {
+            let id = get(this, 'id');
             let users = get(data, 'users', []);
-            if(!isEmpty[users[this.id]]) this.setData(users[this.id]);
+            this.target = users[id];
+            // this.setData(users[id]);
         });
     }
+
     start () {
-        console.log(`USER-start-${this.id}`);
         socket.getSocket().on(`user-destroy-${this.id}`, () => {
             this.node.destroy();
         });
     }
+
     update (dt: any) {
         this.usernameDisplay.string = `${this.username}: ${this.score}`;
-        this.onUpdateMovement(dt);
+
+        if(!isEmpty(this.target)) {
+            let x = interpolation(this.node.x, dt, this.target.x, this.target.xSpeed);
+            if(!isNaN(x)) this.node.x += x;
+
+            let y = interpolation(this.node.y, dt, this.target.y, this.target.ySpeed);
+            if(!isNaN(y)) this.node.y += y;
+        }
     }
 
     onDestroy () {
         socket.getSocket().off(`user-destroy-${this.id}`);
     }
+}
+
+function interpolation(start:number , delta:number, end:number, speed:number = 0) {
+    let stance = end - start;
+    let time = stance / speed;
+
+    let y = delta / (time - delta);
+    let x = (y * stance) / (y + 1) ; // <=>  y = x / (stance - x)
+
+    return x;
 }
