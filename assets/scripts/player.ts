@@ -201,8 +201,7 @@ export default class NewClass extends cc.Component {
     }
 }
 
-function interpolation(start:number , delta:number, end:number, speed:number = 0) {
-    let dt = delta * 10;
+function interpolation(start:number , dt:number, end:number, speed:number = 0) {
     let stance = end - start;
     let time = stance / speed;
 
